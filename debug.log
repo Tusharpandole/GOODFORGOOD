@@ -672,3 +672,4 @@ DEBUG 2025-07-02 02:43:43,686 functional 85810 8451285120
 def backend_cleanup():
     return 1
 
+INFO 2025-07-02 04:10:37,265 autoreload 85540 8451285120 /Users/tusharpandole/goodforgood/backend/goodforgood/settings.py changed, reloading.

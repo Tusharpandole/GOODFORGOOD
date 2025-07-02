@@ -5,10 +5,27 @@ from .serializers import ReportSerializer
 from django.core.cache import cache
 import csv
 import os
+from io import StringIO
 import logging
 from redis.exceptions import ConnectionError
 
 logger = logging.getLogger('reports.tasks')
+
+@shared_task
+def process_bulk_upload(job_id, file_content):
+    reader = csv.DictReader(StringIO(file_content))
+    for row in reader:
+        try:
+            Report.objects.create(
+                ngo_id=row['ngo_id'],
+                month=row['month'],
+                people_helped=int(row['people_helped']),
+                events_conducted=int(row['events_conducted']),
+                funds_utilized=float(row['funds_utilized'])
+            )
+        except (KeyError, ValueError) as e:
+            # Log error for the row, continue with next
+            print(f"Error processing row {row}: {str(e)}")
 
 @shared_task
 def process_csv_upload(file_path, job_id):

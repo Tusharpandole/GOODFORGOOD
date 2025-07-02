@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import ReportView, ReportUploadView, JobStatusView, DashboardView
+from . import views
 
 urlpatterns = [
-    path('api/report', ReportView.as_view(), name='report'),
-    path('api/reports/upload', ReportUploadView.as_view(), name='report-upload'),
-    path('api/job-status/<str:job_id>', JobStatusView.as_view(), name='job-status'),
-    path('api/dashboard', DashboardView.as_view(), name='dashboard'),
+    path('api/health', views.health_check, name='health_check'),
+    path('api/report', views.report_create, name='report_create'),
+    path('api/job-status/<str:job_id>', views.job_status, name='job_status'),
+    path('api/dashboard', views.dashboard_data, name='dashboard_data'),  # Add this
+    path('api/reports/upload', views.bulk_upload, name='bulk_upload'),
 ]

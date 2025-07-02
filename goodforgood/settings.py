@@ -1,14 +1,14 @@
-# backend/goodforgood/settings.py
 import os
-from decouple import config
 from pathlib import Path
+from decouple import config
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', default=False, cast=bool)
+SECRET_KEY = config('SECRET_KEY')  # Load from .env
+
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '127.0.0.1', 'localhost']
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,15 +17,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
-    'corsheaders',  # Added
-    'reports.apps.ReportsConfig',
+    'reports',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Added
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -33,18 +33,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Frontend URL
+    "http://localhost:3000",
+    "https://goodforgood-wnhd-git-master-tushar-pandoles-projects.vercel.app",
+    "https://goodforgood-frontend.vercel.app",
 ]
-
-ROOT_URLCONF = 'goodforgood.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -57,18 +56,12 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'goodforgood.wsgi.application'
+ROOT_URLCONF = 'goodforgood.urls'
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': config('DB_PORT'),
-#     }
-# }
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -88,28 +81,13 @@ CACHES = {
         }
     }
 }
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_ACKS_LATE = True
-CELERY_TASK_DEFAULT_QUEUE = 'default'
-
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ]
-}
-
-
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {process} {thread} {message}',
             'style': '{',
         },
     },
@@ -117,7 +95,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
             'formatter': 'verbose',
         },
         'console': {
@@ -127,7 +105,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        'celery': {
+        'reports.views': {
             'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': False,
@@ -137,18 +115,5 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
-        'reports.views': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-        '': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
     },
 }
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')

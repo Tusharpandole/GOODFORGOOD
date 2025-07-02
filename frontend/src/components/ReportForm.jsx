@@ -1,18 +1,20 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 function ReportForm() {
     const [formData, setFormData] = useState({
-        ngo_id: '', month: '', people_helped: '', events_conducted: '', funds_utilized: ''
+        ngo_id: '',
+        month: '',
+        people_helped: '',
+        events_conducted: '',
+        funds_utilized: ''
     });
     const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/report`, formData, {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const response = await api.post('/api/report', formData);
             alert('Report submitted successfully: ' + JSON.stringify(response.data));
             setFormData({ ngo_id: '', month: '', people_helped: '', events_conducted: '', funds_utilized: '' });
             setError('');
